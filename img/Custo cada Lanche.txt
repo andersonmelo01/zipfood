@@ -1,0 +1,29 @@
+X-tudo:
+
+1 Carne = 1,36
+1 Pão = 1,33
+1 Presunto = 1,60
+1 Queijo = 1,80
+1 Fatia Tomate = 0,20
+1 Alfaçe = 0,18
+5 Fatias Bacon = 2,20
+Milho, Ervilha e Batata = 2,00
+
+Total: 10,67
+Venda: 16,00
+
+--------------------------------------------------
+
+X-Bacon:
+
+1 Carne = 1,36
+1 Pão = 1,33
+1 Presunto = 1,60
+1 Queijo = 1,80
+1 Fatia Tomate = 0,20
+1 Alfaçe = 0,18
+8 Fatias Bacon = 3,20
+Milho, Ervilha e Batata = 2,00
+
+Total: 11,67
+Venda: 18,00

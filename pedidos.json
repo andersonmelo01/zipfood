@@ -1,0 +1,87 @@
+[
+    {
+        "nome": "ANDERSON DE MELO SILVA",
+        "telefone": "21982846871",
+        "endereco": "Rua Reginal Albuquerque Lopes, 9",
+        "referencia": "",
+        "observacao": "Nenhuma",
+        "pagamento": "Cartão",
+        "taxa_entrega": 5,
+        "itens": [
+            {
+                "nome": "Combo Individual",
+                "preco": 29.9
+            }
+        ],
+        "total": "34.90",
+        "id": "699f308fdc753",
+        "status": "Preparando",
+        "data": "25/02/2026 18:25"
+    },
+    {
+        "nome": "ANDERSON DE MELO SILVA",
+        "telefone": "21982846871",
+        "endereco": "Rua Reginal Albuquerque Lopes, 9",
+        "referencia": "",
+        "observacao": "Nenhuma",
+        "pagamento": "Cartão",
+        "taxa_entrega": 5,
+        "itens": [
+            {
+                "nome": "X-Tudo da Casa",
+                "preco": 16
+            }
+        ],
+        "total": "21.00",
+        "id": "699f675d43738",
+        "status": "Pendente",
+        "data": "25/02/2026 22:19"
+    },
+    {
+        "nome": "ANDERSON DE MELO SILVA",
+        "telefone": "21982846871",
+        "endereco": "Rua Reginal Albuquerque Lopes, 9",
+        "referencia": "",
+        "observacao": "Nenhuma",
+        "pagamento": "Cartão",
+        "taxa_entrega": 5,
+        "itens": [
+            {
+                "nome": "Combo Individual",
+                "preco": 29.9
+            }
+        ],
+        "total": "34.90",
+        "id": "699f69167d0b4",
+        "status": "Pendente",
+        "data": "25/02/2026 22:26"
+    },
+    {
+        "id": 8,
+        "nome": "Anderson Melo",
+        "telefone": "21982846871",
+        "endereco": "Estrada Antônio Soares, 757",
+        "referencia": "Big Oferta",
+        "observacao": "",
+        "pagamento": "Pix",
+        "taxa_entrega": 5,
+        "total": 26.91,
+        "status": "novo",
+        "data": "25/03/2026 12:57",
+        "data_pedido": "2026-03-25 12:57:32"
+    },
+    {
+        "id": 9,
+        "nome": "ANDERSON DE MELO SILVA",
+        "telefone": "21964685604",
+        "endereco": "Rua Licínio Cardoso N 22",
+        "referencia": "",
+        "observacao": "",
+        "pagamento": "Pix",
+        "taxa_entrega": 5,
+        "total": 26.91,
+        "status": "novo",
+        "data": "25/03/2026 13:12",
+        "data_pedido": "2026-03-25 13:12:42"
+    }
+]

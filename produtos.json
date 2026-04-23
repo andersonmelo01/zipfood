@@ -1,0 +1,86 @@
+[
+    {
+        "nome": "X-Tudo da Casa",
+        "preco": 16,
+        "imagem": "img\/X-tudo-Casa.jpeg",
+        "disponivel": true,
+        "categoria": "Lanche"
+    },
+    {
+        "nome": "X-Bacon",
+        "preco": 18,
+        "imagem": "img\/X-bacon.jpg",
+        "disponivel": true,
+        "categoria": "Lanche"
+    },
+    {
+        "nome": "Combo Individual",
+        "preco": 29.89999999999999857891452847979962825775146484375,
+        "imagem": "img\/Combo_Individual_ReidoX.jpeg",
+        "disponivel": true,
+        "categoria": "Combo"
+    },
+    {
+        "nome": "Combo Casal",
+        "preco": 59.89999999999999857891452847979962825775146484375,
+        "imagem": "img\/Combo_Dois_Casal.jpeg",
+        "disponivel": true,
+        "categoria": "Combo"
+    },
+    {
+        "nome": "X-Especial da Casa",
+        "preco": 16,
+        "imagem": "img\/Especial_casa.jpeg",
+        "disponivel": true,
+        "categoria": "Lanche"
+    },
+    {
+        "nome": "Combo Kids",
+        "preco": 16,
+        "imagem": "img\/combo-infnatil.jpeg",
+        "disponivel": true,
+        "categoria": "Combo Infantil"
+    },
+    {
+        "nome": "Hamb\u00fargue Infantil",
+        "preco": 11,
+        "imagem": "img\/hanburgue-infantil.jpeg",
+        "disponivel": true,
+        "categoria": "Lanche Infantil"
+    },
+    {
+        "nome": "Coca-Cola 350Lata",
+        "preco": 6,
+        "imagem": "img\/coca350.png",
+        "disponivel": true,
+        "categoria": "Refrigerante"
+    },
+    {
+        "nome": "Coca-Cola garrafa 200ml",
+        "preco": 3,
+        "imagem": "img\/coca200.jpg",
+        "disponivel": false,
+        "categoria": "Refrigerante"
+    },
+    {
+        "nome": "Guaravita",
+        "preco": 3,
+        "imagem": "img\/guaravita.jpg",
+        "disponivel": true,
+        "categoria": "Suco"
+    },
+    {
+        "nome": "Suco Kapo de Uva",
+        "preco": 6,
+        "imagem": "img\/sucokapo.jpg",
+        "disponivel": true,
+        "categoria": "Suco"
+    },
+    {
+        "nome": "Batata Especial da casa",
+        "preco": 17,
+        "imagem": "img\/1771881523_bataEspecial.jpeg",
+        "disponivel": true,
+        "categoria": "Lanche"
+    }
+]

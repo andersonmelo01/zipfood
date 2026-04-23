@@ -1,0 +1,23 @@
+[
+    {
+        "nome": "Anderson",
+        "mensagem": "Muito gostoso",
+        "data": "25\/02\/2026 22:53"
+    },
+    {
+        "nome": "Thais",
+        "mensagem": "Tudo de bom",
+        "data": "25\/02\/2026 23:05"
+    },
+    {
+        "nome": "Sophia",
+        "mensagem": "teste",
+        "data": "25\/02\/2026 23:12"
+    },
+    {
+        "nome": "Sarah",
+        "comentario": "Gostei",
+        "nota": "3",
+        "data": "25\/02\/2026 23:24"
+    }
+]
