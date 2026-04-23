@@ -300,6 +300,8 @@ function corLinhaStatus($status)
                                                     onclick="alterarStatus(<?= $p['id'] ?>,'Saiu')">Saiu</button>
                                                 <button class="btn btn-sm btn-success"
                                                     onclick="alterarStatus(<?= $p['id'] ?>,'Entregue')">Entregue</button>
+                                                <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="alterarStatus(<?= $p['id'] ?>,'Cancelado')">Cancelar</button>
                                             </div>
                                             <button class="btn btn-sm btn-primary"
                                                 onclick='abrirEditarPedido(
@@ -315,6 +317,9 @@ function corLinhaStatus($status)
                                                 ✏ Editar
                                             </button>
 
+                                            <a class="btn btn-sm btn-outline-dark" href="imprimir_pedido.php?id=<?= $p['id'] ?>" target="_blank" title="Imprimir Pedido">
+                                                <i class="bi bi-printer"></i> Imprimir
+                                            </a>
                                             <button class="btn btn-sm btn-danger"
                                                 onclick="excluirPedido(<?= $p['id'] ?>)">🗑 Excluir</button>
                                         </div>
