@@ -144,12 +144,12 @@ $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h5 class="fw-bold mt-3">💰 Impostos</h5>
 
                         <div class="row g-2">
-                            <div class="col-md-2"><input type="text" name="ncm" class="form-control" placeholder="NCM" required></div>
-                            <div class="col-md-2"><input type="text" name="cfop" class="form-control" placeholder="CFOP" required></div>
-                            <div class="col-md-2"><input type="text" name="cst_icms" class="form-control" placeholder="CST ICMS" required></div>
-                            <div class="col-md-2"><input type="number" step="0.01" name="aliquota_icms" class="form-control" placeholder="% ICMS" required></div>
-                            <div class="col-md-2"><input type="number" step="0.01" name="aliquota_pis" class="form-control" placeholder="% PIS" required></div>
-                            <div class="col-md-2"><input type="number" step="0.01" name="aliquota_cofins" class="form-control" placeholder="% COFINS" required></div>
+                            <div class="col-md-2"><input type="text" name="ncm" value="0" class="form-control" placeholder="NCM" required></div>
+                            <div class="col-md-2"><input type="text" name="cfop" value="0" class="form-control" placeholder="CFOP" required></div>
+                            <div class="col-md-2"><input type="text" name="cst_icms" value="0" class="form-control" placeholder="CST ICMS" required></div>
+                            <div class="col-md-2"><input type="number" step="0.01" name="aliquota_icms" value="0.0" class="form-control" placeholder="% ICMS" required></div>
+                            <div class="col-md-2"><input type="number" step="0.01" name="aliquota_pis" value="0.0" class="form-control" placeholder="% PIS" required></div>
+                            <div class="col-md-2"><input type="number" step="0.01" name="aliquota_cofins" value="0.0" class="form-control" placeholder="% COFINS" required></div>
                         </div>
 
                     </div>
