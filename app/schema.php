@@ -2,28 +2,15 @@
 
 function ensure_schema(PDO $pdo): void
 {
-    // ================= FEEDBACKS =================
+    
     $pdo->exec("
-        CREATE TABLE IF NOT EXISTS feedbacks (
-            id VARCHAR(40) PRIMARY KEY,
-            nome VARCHAR(100) NOT NULL,
-            comentario TEXT NOT NULL,
-            estrelas INT NOT NULL DEFAULT 5,
-            aprovado TINYINT(1) DEFAULT 0,
-            sugestao TINYINT(1) DEFAULT 0,
-            data DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_feedbacks_aprovado (aprovado),
-            INDEX idx_feedbacks_data (data)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-    ");
-    $pdo->exec("
-        CREATE DATABASE IF NOT EXISTS zipfood_demo
+        CREATE DATABASE IF NOT EXISTS zipfood
         CHARACTER SET utf8mb4
         COLLATE utf8mb4_unicode_ci;
     ");
 
     // 🔥 Seleciona o banco
-    $pdo->exec("USE zipfood_demo");
+    $pdo->exec("USE zipfood");
 
     // ================= PRODUTOS =================
     $pdo->exec("
@@ -105,6 +92,20 @@ function ensure_schema(PDO $pdo): void
             subtotal DECIMAL(10,2) NOT NULL,
             INDEX idx_pedido_itens_pedido (pedido_id),
             FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+    // ================= FEEDBACKS =================
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS feedbacks (
+            id VARCHAR(40) PRIMARY KEY,
+            nome VARCHAR(100) NOT NULL,
+            comentario TEXT NOT NULL,
+            estrelas INT NOT NULL DEFAULT 5,
+            aprovado TINYINT(1) DEFAULT 0,
+            sugestao TINYINT(1) DEFAULT 0,
+            data DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_feedbacks_aprovado (aprovado),
+            INDEX idx_feedbacks_data (data)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 }

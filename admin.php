@@ -1,14 +1,53 @@
 <?php
+require_once __DIR__ . '/emitente.php';
 
+$emitente = ler_emitente();
+$licencaExpirada = false;
+$diasRestantes = null;
+
+if (!empty($emitente['validade'])) {
+    try {
+        $hoje = new DateTime();
+        $validade = new DateTime($emitente['validade']);
+
+        $diasRestantes = (int)$hoje->diff($validade)->format('%r%a');
+
+        if ($diasRestantes < 0) {
+            $licencaExpirada = true;
+        }
+    } catch (Exception $e) {
+        $licencaExpirada = true;
+    }
+}
+
+// ================= MENSAGEM =================
+if ($licencaExpirada) {
+    $mensagemLicenca = '🚫 Licença expirada em ' . date('d/m/Y', strtotime($emitente['validade'])) . '. Entre em contato para renovação.';
+} elseif ($diasRestantes !== null && $diasRestantes <= 5) {
+    $mensagemLicenca = "⚠️ Licença vence em $diasRestantes dia(s).";
+} else {
+    $mensagemLicenca = null;
+}
+
+// ================= CONEXÃO =================
 require_once __DIR__ . '/conexao.php';
 
+// 🔒 FECHAR LOJA AUTOMATICAMENTE
+if ($licencaExpirada) {
+    $config['loja_fechada'] = true; // só em memória
+}
+
+
+// ================= REDIRECT =================
 if (is_admin_logged_in()) {
     redirect('dashboard.php');
 }
 
 $erro = null;
 
+// ================= LOGIN =================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $usuario = trim((string) ($_POST['usuario'] ?? ''));
     $senha = (string) ($_POST['senha'] ?? '');
 
@@ -18,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'andersonmelo01@gmail.com',
         'admin',
     ]));
+
     $usuarioValido = false;
     foreach ($usuariosPermitidos as $usuarioPermitido) {
         if ($usuarioPermitido !== '' && hash_equals($usuarioPermitido, $usuario)) {
@@ -25,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         }
     }
+
     $senhaHash = (string) ($auth['admin_password_hash'] ?? '');
 
     if ($senhaHash !== '') {
@@ -33,18 +74,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $senhaValida = hash_equals((string) ($auth['admin_password'] ?? '123456'), $senha);
     }
 
+    // 🔒 BLOQUEIO SE LICENÇA EXPIRADA
     if ($usuarioValido && $senhaValida) {
-        $_SESSION['admin'] = [
-            'user' => $usuario,
-            'logged_at' => time(),
-        ];
 
-        redirect('dashboard.php');
+        if ($licencaExpirada) {
+            $erro = 'Licença expirada. Acesso bloqueado.';
+        } else {
+            $_SESSION['admin'] = [
+                'user' => $usuario,
+                'logged_at' => time(),
+            ];
+
+            redirect('dashboard.php');
+        }
+    } else {
+        $erro = 'Login inválido.';
     }
-
-    $erro = 'Login inválido.';
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -62,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="row justify-content-center">
             <div class="col-12 col-md-5 col-lg-4">
                 <div class="soft-panel p-4 p-lg-5">
+
                     <div class="d-flex align-items-center gap-3 mb-4">
                         <img src="img/logo-zipfood.svg" alt="ZipFood" style="height:40px;width:auto;">
                         <div>
@@ -71,8 +118,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <h1 class="h4 fw-bold mb-2">Entrar</h1>
-                    <p class="text-muted mb-4">Acesse o back-office para gerenciar produtos, pedidos e operação.</p>
+                    <p class="text-muted mb-4">Acesse o sistema.</p>
 
+                    <!-- 🔥 ALERTA LICENÇA -->
+                    <?php if ($mensagemLicenca): ?>
+                        <div class="alert <?= $licencaExpirada ? 'alert-danger' : 'alert-warning' ?> text-center fw-bold">
+                            <?= $mensagemLicenca ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- ERRO LOGIN -->
                     <?php if ($erro): ?>
                         <div class="alert alert-danger"><?= e($erro) ?></div>
                     <?php endif; ?>
@@ -80,12 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form method="POST" class="d-grid gap-3">
                         <div>
                             <label class="form-label">Usuário</label>
-                            <input type="text" name="usuario" class="form-control" placeholder="Seu usuário" required>
+                            <input type="text" name="usuario" class="form-control" required>
                         </div>
 
                         <div>
                             <label class="form-label">Senha</label>
-                            <input type="password" name="senha" class="form-control" placeholder="Sua senha" required>
+                            <input type="password" name="senha" class="form-control" required>
                         </div>
 
                         <button class="btn btn-brand btn-lg">Entrar</button>
@@ -94,10 +149,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="small text-muted mt-4">
                         Ambiente: <?= e((string) config_value('app.environment', 'local')) ?>
                     </div>
+
                 </div>
             </div>
         </div>
     </main>
 </body>
-
 </html>

@@ -22,6 +22,11 @@ Sistema de pedidos online para delivery, com painel administrativo, acompanhamen
 ## Configurações
 - Taxa de entrega e status da loja são definidos em `dashboard.php` e salvos em `config.json`.
 - Alterações são refletidas em tempo real para o cliente.
+- **Controle de Licença:**
+	- O campo `validade` em `emitente.json` define até quando o sistema pode ser utilizado.
+	- Quando faltar 5 dias ou menos para expirar, um aviso é exibido no dashboard.
+	- Se expirar, o login administrativo é bloqueado e a loja é automaticamente fechada.
+	- Para atualizar a validade/licença, acesse `licenca.php` (requer usuário: admin, senha: And95079@).
 
 ## Segurança
 - **Validação de dados**: Todos os dados recebidos via POST são validados e tratados.

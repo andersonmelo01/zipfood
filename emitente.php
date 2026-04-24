@@ -8,15 +8,23 @@ function ler_emitente() {
             'cnpj' => '',
             'endereco' => '',
             'telefone' => '',
-            'site' => ''
+            'site' => '',
+            'validade' => ''
         ];
     }
     $json = file_get_contents($arquivo);
-    return json_decode($json, true);
+    $dados = json_decode($json, true);
+    if (!isset($dados['validade'])) {
+        $dados['validade'] = '';
+    }
+    return $dados;
 }
 
 function salvar_emitente($dados) {
     $arquivo = 'emitente.json';
+    if (!isset($dados['validade'])) {
+        $dados['validade'] = '';
+    }
     file_put_contents($arquivo, json_encode($dados, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 }
 ?>

@@ -1,11 +1,44 @@
 <?php
 
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/emitente.php';
 
+// ================= LICENÇA =================
+$emitente = ler_emitente();
+$diasRestantes = null;
+$licencaExpirada = false;
+
+if (!empty($emitente['validade'])) {
+    try {
+        $hoje = new DateTime();
+        $validade = new DateTime($emitente['validade']);
+
+        $diasRestantes = (int)$hoje->diff($validade)->format('%r%a');
+
+        if ($diasRestantes < 0) {
+            $licencaExpirada = true;
+        }
+    } catch (Exception $e) {
+        $licencaExpirada = true;
+    }
+}
+
+// ================= CONFIG =================
+$configRuntime = config_value('delivery', []);
+
+// 🔒 Se licença expirou, FORÇA loja fechada
+if ($licencaExpirada) {
+    $configRuntime['loja_fechada'] = true;
+
+    // opcional: salvar automaticamente
+    //config_set('delivery', $configRuntime);
+}
+
+// ================= EMITENTE =================
 $stmt = $pdo->query("SELECT * FROM produtos WHERE disponivel = 1 ORDER BY promo_ativa DESC, categoria, nome");
 $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$configRuntime = config_value('delivery', []);
+//$configRuntime = config_value('delivery', []);
 $lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
 $taxaEntrega = (float) ($configRuntime['taxa_entrega'] ?? 0);
 $brand = (string) config_value('app.brand', 'Delivery Pro');
@@ -391,11 +424,16 @@ $produtosPromocao = array_values(array_filter($produtos, static function (array 
 
     <main class="container py-4 py-lg-5">
         <?php if ($lojaFechada): ?>
-            <div class="alert alert-warning soft-panel border-0 mb-4">
-                <strong>Pedidos temporariamente pausados.</strong> A loja está fechada no momento.
-            </div>
-        <?php endif; ?>
+        <div class="alert <?= $licencaExpirada ? 'alert-danger' : 'alert-warning' ?> soft-panel border-0 mb-4 text-center fw-bold">
+            
+            <?php if ($licencaExpirada): ?>
+                🚫 Sistema temporariamente indisponível.<br>
+            <?php else: ?>
+                ⚠️ Pedidos temporariamente pausados. A loja está fechada no momento.
+            <?php endif; ?>
 
+        </div>
+        <?php endif; ?>
         <section class="hero-card p-4 p-lg-5 mb-4">
             <div class="row align-items-center g-4">
                 <div class="col-lg-7">
@@ -415,8 +453,12 @@ $produtosPromocao = array_values(array_filter($produtos, static function (array 
                         <button class="btn btn-outline-light btn-lg" onclick="toggleCarrinho()">Abrir carrinho</button>
                     </div>
                     <div class="mt-2">
-                        <a href="/delivery/flutter_zipfood/build/app/outputs/flutter-apk/app-release.apk" class="btn btn-success btn-sm" target="_blank">
-                            <i class="bi bi-phone"></i> Baixar app para Android 
+                        <a href="#"
+                            class="btn btn-success btn-sm disabled"
+                            onclick="return false;"
+                            aria-disabled="true"
+                            style="pointer-events: none; opacity: 0.6;">
+                            <i class="bi bi-phone"></i> Baixar app para Android
                         </a>
                         <span class="text-white-50 small ms-2">Instale o app Zipfood no seu celular Android</span>
                     </div>

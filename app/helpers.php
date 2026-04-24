@@ -84,6 +84,16 @@ function json_response(array $data, int $status = 200): never
 
 function is_admin_logged_in(): bool
 {
+    // Bloqueio por validade de licença
+    require_once __DIR__ . '/../emitente.php';
+    $emitente = ler_emitente();
+    if (!empty($emitente['validade'])) {
+        $hoje = new DateTime();
+        $dataValidade = DateTime::createFromFormat('Y-m-d', $emitente['validade']);
+        if ($dataValidade && $hoje > $dataValidade) {
+            return false;
+        }
+    }
     return !empty($_SESSION['admin']);
 }
 
@@ -96,6 +106,16 @@ function require_admin(): void
 
 function is_loja_fechada(): bool
 {
+    // Fecha loja automaticamente se licença expirada
+    require_once __DIR__ . '/../emitente.php';
+    $emitente = ler_emitente();
+    if (!empty($emitente['validade'])) {
+        $hoje = new DateTime();
+        $dataValidade = DateTime::createFromFormat('Y-m-d', $emitente['validade']);
+        if ($dataValidade && $hoje > $dataValidade) {
+            return true;
+        }
+    }
     return (bool) config_value('delivery.loja_fechada', false);
 }
 function pedidos_sync_file(): string

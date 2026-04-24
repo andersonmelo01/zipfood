@@ -6,7 +6,7 @@ require_once __DIR__ . '/app/schema.php';
 $db = config_value('database', []);
 
 $host = $db['host'] ?? 'localhost';
-$name = $db['name'] ?? 'zipfood_demo';
+$name = $db['name'] ?? 'zipfood';
 $user = $db['user'] ?? 'adv';
 $pass = $db['pass'] ?? 'gigalele';
 

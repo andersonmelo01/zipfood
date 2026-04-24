@@ -3,17 +3,71 @@
 require_once __DIR__ . '/conexao.php';
 require_admin();
 
+require_once __DIR__ . '/emitente.php';
+
+// ================= LICENÇA =================
+$emitente = ler_emitente();
+$diasRestantes = null;
+$licencaExpirada = false;
+
+if (!empty($emitente['validade'])) {
+    try {
+        $hoje = new DateTime();
+        $validade = new DateTime($emitente['validade']);
+
+        $diasRestantes = (int)$hoje->diff($validade)->format('%r%a');
+
+        if ($diasRestantes < 0) {
+            $licencaExpirada = true;
+        }
+
+    } catch (Exception $e) {
+        $licencaExpirada = true;
+    }
+}
+
+// ================= CONFIG =================
+$configRuntime = config_value('delivery', []);
+
+// 🔒 FECHAR LOJA AUTOMATICAMENTE SE EXPIRAR
+if ($licencaExpirada) {
+    if (empty($configRuntime['loja_fechada'])) {
+        $configRuntime['loja_fechada'] = true;
+        config_set('delivery', $configRuntime);
+    }
+}
+
+// ================= BLOQUEIO DE PÁGINAS =================
+if ($licencaExpirada) {
+
+    $paginaAtual = basename($_SERVER['PHP_SELF']);
+
+    $permitidas = [
+        'config_emitente.php',
+        'licenca.php'
+    ];
+
+    if (!in_array($paginaAtual, $permitidas)) {
+        echo '<div class="alert alert-danger text-center fw-bold mt-5">
+                🚫 Licença expirada! Acesso bloqueado.
+              </div>';
+        exit;
+    }
+}
+
+// ================= VARIÁVEIS =================
+$taxaEntrega = (float) ($configRuntime['taxa_entrega'] ?? 5.00);
+$taxaAtiva = (bool) ($configRuntime['taxa_ativa'] ?? true);
+$lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
+
+// ================= MÉTRICAS =================
 $totalPedidos = (int) $pdo->query('SELECT COUNT(*) FROM pedidos')->fetchColumn();
 $totalFaturado = (float) $pdo->query("SELECT COALESCE(SUM(total), 0) FROM pedidos WHERE status = 'Entregue'")->fetchColumn();
 $emAndamento = (int) $pdo->query("SELECT COUNT(*) FROM pedidos WHERE status IN ('Preparando', 'Saiu')")->fetchColumn();
 $faturamentoHoje = (float) $pdo->query("SELECT COALESCE(SUM(total), 0) FROM pedidos WHERE DATE(data_pedido) = CURDATE() AND status = 'Entregue'")->fetchColumn();
 
-$configRuntime = config_value('delivery', []);
-$taxaEntrega = (float) ($configRuntime['taxa_entrega'] ?? 5.00);
-$taxaAtiva = (bool) ($configRuntime['taxa_ativa'] ?? true);
-$lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
-
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -56,6 +110,21 @@ $lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
                 </div>
             </div>
         </div>
+<?php if ($diasRestantes !== null): ?>
+
+    <?php if ($diasRestantes < 0): ?>
+        <div class="alert alert-danger text-center fw-bold">
+            🚫 Licença EXPIRADA! Regularize o sistema imediatamente.
+        </div>
+
+    <?php elseif ($diasRestantes <= 5): ?>
+        <div class="alert alert-warning text-center fw-bold">
+            ⚠️ Atenção! Sua licença vence em <?= $diasRestantes ?> dia(s).
+        </div>
+
+    <?php endif; ?>
+
+<?php endif; ?>
 
         <div class="row g-3 mb-4">
             <div class="col-md-3">
