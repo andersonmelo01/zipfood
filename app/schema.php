@@ -2,15 +2,28 @@
 
 function ensure_schema(PDO $pdo): void
 {
-    // 🔥 Cria o banco se não existir
+    // ================= FEEDBACKS =================
     $pdo->exec("
-        CREATE DATABASE IF NOT EXISTS zipfood
+        CREATE TABLE IF NOT EXISTS feedbacks (
+            id VARCHAR(40) PRIMARY KEY,
+            nome VARCHAR(100) NOT NULL,
+            comentario TEXT NOT NULL,
+            estrelas INT NOT NULL DEFAULT 5,
+            aprovado TINYINT(1) DEFAULT 0,
+            sugestao TINYINT(1) DEFAULT 0,
+            data DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_feedbacks_aprovado (aprovado),
+            INDEX idx_feedbacks_data (data)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+    $pdo->exec("
+        CREATE DATABASE IF NOT EXISTS zipfood_demo
         CHARACTER SET utf8mb4
         COLLATE utf8mb4_unicode_ci;
     ");
 
     // 🔥 Seleciona o banco
-    $pdo->exec("USE zipfood");
+    $pdo->exec("USE zipfood_demo");
 
     // ================= PRODUTOS =================
     $pdo->exec("

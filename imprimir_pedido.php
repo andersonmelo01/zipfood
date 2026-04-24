@@ -1,3 +1,4 @@
+
 <?php
 // Gera impressão simples do pedido para o entregador
 require_once __DIR__ . '/conexao.php';
@@ -18,6 +19,13 @@ if (!$pedido) {
 $stmtItens = $pdo->prepare('SELECT produto_nome AS nome, preco, quantidade FROM pedido_itens WHERE pedido_id = ?');
 $stmtItens->execute([$id]);
 $itens = $stmtItens->fetchAll(PDO::FETCH_ASSOC);
+
+// Dados do estabelecimento
+$estab = [];
+$configFile = __DIR__ . '/emitente.json';
+if (file_exists($configFile)) {
+    $estab = json_decode(file_get_contents($configFile), true);
+}
 
 ?><!DOCTYPE html>
 <html lang="pt-br">
@@ -83,6 +91,24 @@ $itens = $stmtItens->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body onload="window.print()">
     <div class="print-area">
+        <?php if (!empty($estab['nome'])): ?>
+            <div class="print-title" style="font-size:1.15em; margin-bottom:2px;">
+                <?= htmlspecialchars($estab['nome']) ?>
+            </div>
+        <?php endif; ?>
+        <?php if (!empty($estab['cnpj'])): ?>
+            <div class="center">CNPJ: <?= htmlspecialchars($estab['cnpj']) ?></div>
+        <?php endif; ?>
+        <?php if (!empty($estab['endereco'])): ?>
+            <div class="center">End: <?= htmlspecialchars($estab['endereco']) ?></div>
+        <?php endif; ?>
+        <?php if (!empty($estab['telefone'])): ?>
+            <div class="center">Fone: <?= htmlspecialchars($estab['telefone']) ?></div>
+        <?php endif; ?>
+        <?php if (!empty($estab['site'])): ?>
+            <div class="center">Site: <?= htmlspecialchars($estab['site']) ?></div>
+        <?php endif; ?>
+        <div class="linha"></div>
         <div class="print-title">PEDIDO #<?= $pedido['id'] ?></div>
         <div class="center">Data: <?= date('d/m/Y H:i', strtotime($pedido['data_pedido'])) ?></div>
         <hr>
@@ -106,7 +132,11 @@ $itens = $stmtItens->fetchAll(PDO::FETCH_ASSOC);
         </ul>
         <div class="print-total">Total: R$ <?= number_format($pedido['total'], 2, ',', '.') ?></div>
         <div class="linha"></div>
-        <div class="center">Obrigado por escolher a ZipFood!</div>
+        <?php if (!empty($estab['mensagem_cupom'])): ?>
+            <div class="center" style="margin-bottom:2px;white-space:pre-line;"><?= htmlspecialchars($estab['mensagem_cupom']) ?></div>
+        <?php else: ?>
+            <div class="center">Obrigado por escolher a ZipFood!</div>
+        <?php endif; ?>
         <button class="no-print" onclick="window.close()">Fechar</button>
     </div>
 </body>

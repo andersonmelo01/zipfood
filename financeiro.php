@@ -1,22 +1,31 @@
 <?php
-
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/emitente.php';
 require_admin();
+
 
 $dataInicio = (string) ($_GET['data_inicio'] ?? date('Y-m-d'));
 $dataFim = (string) ($_GET['data_fim'] ?? date('Y-m-d'));
+$filtroPagamento = isset($_GET['pagamento']) ? $_GET['pagamento'] : '';
+$filtroCancelado = isset($_GET['cancelado']) ? $_GET['cancelado'] : '';
 
-$stmt = $pdo->prepare("
-    SELECT p.id, p.nome, p.telefone, p.pagamento, p.total, p.status, p.data_pedido
-    FROM pedidos p
-    WHERE p.data_pedido BETWEEN ? AND ?
-      AND p.status = 'Entregue'
-    ORDER BY p.data_pedido DESC
-");
-$stmt->execute([
-    $dataInicio . ' 00:00:00',
-    $dataFim . ' 23:59:59',
-]);
+
+$sql = "SELECT p.id, p.nome, p.telefone, p.pagamento, p.total, p.status, p.data_pedido
+        FROM pedidos p
+        WHERE p.data_pedido BETWEEN ? AND ?";
+$params = [$dataInicio . ' 00:00:00', $dataFim . ' 23:59:59'];
+if ($filtroCancelado === '1') {
+    $sql .= " AND p.status = 'Cancelado'";
+} else {
+    $sql .= " AND p.status = 'Entregue'";
+}
+if ($filtroPagamento !== '') {
+    $sql .= " AND p.pagamento = ?";
+    $params[] = $filtroPagamento;
+}
+$sql .= " ORDER BY p.data_pedido DESC";
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
 
 $pedidosFiltrados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -83,18 +92,40 @@ if ($pedidosFiltrados) {
             </div>
         </div>
 
+        <div class="mb-4">
+            <div class="alert alert-success" style="font-size:1.2em;">
+                <strong>Total do faturamento filtrado:</strong> R$ <?= money($faturamentoTotal) ?>
+            </div>
+        </div>
         <form method="GET" class="row g-3 mb-4 soft-panel p-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">Data Inicial</label>
                 <input type="date" name="data_inicio" value="<?= e($dataInicio) ?>" class="form-control">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">Data Final</label>
                 <input type="date" name="data_fim" value="<?= e($dataFim) ?>" class="form-control">
             </div>
-            <div class="col-md-4 d-flex align-items-end gap-2">
-                <button class="btn btn-brand w-100">Filtrar</button>
-                <a href="financeiro.php" class="btn btn-outline-secondary w-100">Hoje</a>
+            <div class="col-md-3">
+                <label class="form-label">Pagamento</label>
+                <select name="pagamento" class="form-control">
+                    <option value="">Todos</option>
+                    <?php foreach (array_keys($pagamentos) as $pg): ?>
+                        <option value="<?= e($pg) ?>" <?= ($filtroPagamento === $pg) ? 'selected' : '' ?>><?= e($pg) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="cancelado" value="1" id="canceladoCheck" <?= $filtroCancelado === '1' ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="canceladoCheck">Exibir apenas cancelados</label>
+                </div>
+            </div>
+            <div class="col-md-12 d-flex align-items-end gap-2">
+                <button class="btn btn-brand">Filtrar</button>
+                <a href="financeiro.php" class="btn btn-outline-secondary">Limpar</a>
+                <button type="button" class="btn btn-secondary" onclick="window.print()">Imprimir</button>
             </div>
         </form>
 
@@ -127,31 +158,55 @@ if ($pedidosFiltrados) {
             </div>
         </div>
 
+        <div class="d-print-block d-none" style="margin-bottom:24px;">
+            <?php $emitente = ler_emitente(); ?>
+            <div class="text-center">
+                <h3 style="margin-bottom:2px; font-weight:bold;">Relatório Financeiro</h3>
+                <?php if (!empty($emitente['nome'])): ?><div><?= htmlspecialchars($emitente['nome']) ?></div><?php endif; ?>
+                <?php if (!empty($emitente['cnpj'])): ?><div>CNPJ/CPF: <?= htmlspecialchars($emitente['cnpj']) ?></div><?php endif; ?>
+                <?php if (!empty($emitente['endereco'])): ?><div><?= htmlspecialchars($emitente['endereco']) ?></div><?php endif; ?>
+                <?php if (!empty($emitente['telefone'])): ?><div>Fone: <?= htmlspecialchars($emitente['telefone']) ?></div><?php endif; ?>
+                <?php if (!empty($emitente['email'])): ?><div><?= htmlspecialchars($emitente['email']) ?></div><?php endif; ?>
+                <div>Período: <?= e($dataInicio) ?> a <?= e($dataFim) ?></div>
+            </div>
+            <hr>
+        </div>
+
         <h4 class="mb-3">Pedidos entregues</h4>
         <?php if (empty($pedidosFiltrados)): ?>
             <div class="alert alert-info soft-panel border-0">Nenhum pedido entregue neste período.</div>
         <?php else: ?>
-            <div class="row g-3">
-                <?php foreach ($pedidosFiltrados as $p): ?>
-                    <div class="col-md-4">
-                        <div class="card-soft p-4 h-100">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="mb-0">Pedido #<?= (int) $p['id'] ?></h5>
-                                <span class="badge bg-success"><?= e($p['status']) ?></span>
-                            </div>
-                            <p><strong>Cliente:</strong> <?= e($p['nome']) ?></p>
-                            <p><strong>Telefone:</strong> <?= e($p['telefone']) ?></p>
-                            <p><strong>Pagamento:</strong> <?= e($p['pagamento']) ?></p>
-                            <ul class="list-unstyled mb-2">
-                                <?php foreach ($p['itens'] as $item): ?>
-                                    <li>• <?= e($item['produto_nome']) ?> - R$ <?= money($item['preco']) ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                            <h6 class="text-success">Total: R$ <?= money($p['total']) ?></h6>
-                            <small class="text-muted"><?= e($p['data_pedido']) ?></small>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle" style="background:#fff;">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Telefone</th>
+                            <th>Pagamento</th>
+                            <th>Itens</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($pedidosFiltrados as $p): ?>
+                            <tr>
+                                <td><?= (int) $p['id'] ?></td>
+                                <td><?= date('d/m/Y H:i', strtotime($p['data_pedido'])) ?></td>
+                                <td><?= e($p['nome']) ?></td>
+                                <td><?= e($p['telefone']) ?></td>
+                                <td><?= e($p['pagamento']) ?></td>
+                                <td>
+                                    <?php foreach ($p['itens'] as $item): ?>
+                                        <?= e($item['produto_nome']) ?> x<?= (int)$item['quantidade'] ?><br>
+                                    <?php endforeach; ?>
+                                </td>
+                                <td>R$ <?= money($p['total']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         <?php endif; ?>
     </div>
@@ -173,7 +228,9 @@ if ($pedidosFiltrados) {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: !window.matchMedia('print').matches }, y: { display: !window.matchMedia('print').matches } }
             }
         });
 
@@ -188,10 +245,18 @@ if ($pedidosFiltrados) {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: { legend: { display: !window.matchMedia('print').matches } }
             }
         });
     </script>
+    <style>
+        @media print {
+            .btn, .soft-panel, .app-hero, nav, .row.g-3.mb-4, .card-soft.p-4.mb-4, .chartjs-render-monitor, .form-label, .form-control, .d-print-none, .d-none:not(.d-print-block) { display: none !important; }
+            .d-print-block { display: block !important; }
+            .table { font-size: 12px; }
+        }
+    </style>
 </body>
 
 </html>

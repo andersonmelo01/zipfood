@@ -466,7 +466,8 @@ function corLinhaStatus($status)
         let tocandoAgora = false;
         const pedidoAudio = document.getElementById('somNovoPedido');
         const pedidoAudioBtn = document.getElementById('ativarSom');
-        let pedidoSomLiberado = localStorage.getItem('pedidoSomLiberado') === 'true';
+        let pedidoSomLiberado = true;
+        localStorage.setItem('pedidoSomLiberado', 'true');
         let totalAnterior = <?= (int) $pdo->query('SELECT COUNT(*) FROM pedidos')->fetchColumn() ?>;
         let ultimoIdAnterior = <?= (int) $pdo->query('SELECT COALESCE(MAX(id), 0) FROM pedidos')->fetchColumn() ?>;
         let pedidoAudioContext = null;
@@ -506,9 +507,9 @@ function corLinhaStatus($status)
         }
 
         function syncBotaoSom() {
-            pedidoAudioBtn.classList.toggle('btn-success', pedidoSomLiberado);
-            pedidoAudioBtn.classList.toggle('btn-warning', !pedidoSomLiberado);
-            pedidoAudioBtn.textContent = pedidoSomLiberado ? '🔔 Som ativado' : '🔔 Ativar som de novos pedidos';
+            pedidoAudioBtn.classList.add('btn-success');
+            pedidoAudioBtn.classList.remove('btn-warning');
+            pedidoAudioBtn.textContent = '🔔 Som ativado';
         }
 
         async function liberarSomPedidos() {

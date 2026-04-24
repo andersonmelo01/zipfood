@@ -1,23 +1,82 @@
 [
     {
-        "nome": "Anderson",
-        "mensagem": "Muito gostoso",
-        "data": "25\/02\/2026 22:53"
+        "nome": "Simone",
+        "comentario": "bom",
+        "estrelas": 5,
+        "aprovado": true,
+        "data": "2026-04-24 09:33",
+        "id": "fb_69eb636394d9b8.58070347"
     },
     {
         "nome": "Thais",
-        "mensagem": "Tudo de bom",
-        "data": "25\/02\/2026 23:05"
+        "comentario": "medio",
+        "estrelas": 3,
+        "aprovado": true,
+        "data": "2026-04-24 09:34",
+        "id": "fb_69eb6363954410.94191953"
     },
     {
         "nome": "Sophia",
-        "mensagem": "teste",
-        "data": "25\/02\/2026 23:12"
+        "comentario": "gostoso",
+        "estrelas": 5,
+        "aprovado": true,
+        "data": "2026-04-24 09:34",
+        "id": "fb_69eb6363954445.33518821"
+    },
+    {
+        "nome": "Marcio",
+        "comentario": "bom de mais",
+        "estrelas": 4,
+        "aprovado": true,
+        "data": "2026-04-24 09:34",
+        "id": "fb_69eb6363954453.77331430"
     },
     {
         "nome": "Sarah",
-        "comentario": "Gostei",
-        "nota": "3",
-        "data": "25\/02\/2026 23:24"
+        "comentario": "delicia",
+        "estrelas": 5,
+        "aprovado": true,
+        "data": "2026-04-24 09:35",
+        "id": "fb_69eb638bd995b9.92087645"
+    },
+    {
+        "nome": "Felipe",
+        "comentario": "ruin",
+        "estrelas": 1,
+        "aprovado": true,
+        "data": "2026-04-24 09:36",
+        "id": "fb_69eb63f464b9a4.66652912"
+    },
+    {
+        "nome": "Tayna",
+        "comentario": "pessimo",
+        "estrelas": 1,
+        "aprovado": true,
+        "data": "2026-04-24 09:37",
+        "id": "fb_69eb63f464b9b6.21815710"
+    },
+    {
+        "nome": "Tayna",
+        "comentario": "pessimo",
+        "estrelas": 1,
+        "aprovado": false,
+        "data": "2026-04-24 09:37",
+        "id": "fb_69eb672fbd2ab0.97502995"
+    },
+    {
+        "nome": "Anderson Melo",
+        "comentario": "muito bom.",
+        "estrelas": 5,
+        "aprovado": false,
+        "data": "2026-04-24 09:38",
+        "id": "fb_69eb672fbd40c5.09330950"
+    },
+    {
+        "id": "fb_69eb668fb593c8.07132860",
+        "nome": "Carlos",
+        "comentario": "ruim",
+        "estrelas": 5,
+        "aprovado": false,
+        "data": "2026-04-24 09:48"
     }
 ]

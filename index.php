@@ -410,9 +410,15 @@ $produtosPromocao = array_values(array_filter($produtos, static function (array 
                         Explore o cardápio, monte seu pedido e finalize em poucos toques. Visual limpo, rápido no celular e elegante no desktop.
                     </p>
 
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
                         <a href="#menu" class="btn btn-brand btn-lg">Explorar cardápio</a>
                         <button class="btn btn-outline-light btn-lg" onclick="toggleCarrinho()">Abrir carrinho</button>
+                    </div>
+                    <div class="mt-2">
+                        <a href="/delivery/flutter_zipfood/build/app/outputs/flutter-apk/app-release.apk" class="btn btn-success btn-sm" target="_blank">
+                            <i class="bi bi-phone"></i> Baixar app para Android 
+                        </a>
+                        <span class="text-white-50 small ms-2">Instale o app Zipfood no seu celular Android</span>
                     </div>
                 </div>
 
@@ -872,6 +878,14 @@ $produtosPromocao = array_values(array_filter($produtos, static function (array 
     }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="mt-5 py-4 bg-light border-top">
+        <div class="container text-center">
+            <a href="avaliacoes.php" class="btn btn-outline-warning" style="font-family:'Playfair Display',serif;font-weight:700;letter-spacing:0.5px;">
+                <i class="bi bi-star-fill"></i> Veja avaliações de clientes ou envie a sua
+            </a>
+            <div class="small text-muted mt-2">Avaliações só ficam visíveis após aprovação do administrador.</div>
+        </div>
+    </footer>
 </body>
 
 </html>

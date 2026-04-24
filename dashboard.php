@@ -118,6 +118,16 @@ $lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
 
             <div class="col-md-3">
                 <div class="card-menu p-4 text-center h-100">
+                    <div class="display-6">🏢</div>
+                    <h5 class="mt-3 fw-bold">Emitente</h5>
+                    <p class="text-muted mb-4">Dados do estabelecimento para relatórios e pedidos.</p>
+                    <a href="config_emitente.php" class="btn btn-info w-100">Configurar emitente</a>
+                </div>
+            </div>
+
+            <!-- Feedbacks -->
+            <div class="col-md-3">
+                <div class="card-menu p-4 text-center h-100">
                     <div class="display-6">⭐</div>
                     <h5 class="mt-3 fw-bold">Feedbacks</h5>
                     <p class="text-muted mb-4">Avaliações e comentários dos clientes.</p>
@@ -181,6 +191,9 @@ $lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
         <button id="ativarSom" class="btn btn-warning position-fixed bottom-0 end-0 m-4 shadow">
             🔊 Ativar som
         </button>
+        <div id="avisoSom" class="alert alert-info position-fixed bottom-0 start-0 m-4 shadow" style="z-index:9999; display:none;">
+            ⚠️ Clique em qualquer lugar da tela para ativar o som de novos pedidos.
+        </div>
     </div>
 
     <script>
@@ -188,12 +201,17 @@ $lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
         const pedidoAudioBtn = document.getElementById('ativarSom');
         const pedidoTrigger = document.getElementById('btnPedidos');
         let pedidoSomLiberado = localStorage.getItem('pedidoSomLiberado') === 'true';
+        const avisoSom = document.getElementById('avisoSom');
         let totalAnterior = <?= $totalPedidos ?>;
         let ultimoIdAnterior = <?= (int) $pdo->query('SELECT COALESCE(MAX(id), 0) FROM pedidos')->fetchColumn() ?>;
         let pedidoAudioContext = null;
 
         pedidoAudio.preload = 'auto';
         pedidoAudio.load();
+        // Exibe aviso se som não estiver liberado
+        if (!pedidoSomLiberado) {
+            avisoSom.style.display = 'block';
+        }
 
         function getAudioContext() {
             if (!pedidoAudioContext) {
@@ -227,9 +245,9 @@ $lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
         }
 
         function syncBotaoSom() {
-            pedidoAudioBtn.classList.toggle('btn-success', pedidoSomLiberado);
-            pedidoAudioBtn.classList.toggle('btn-warning', !pedidoSomLiberado);
-            pedidoAudioBtn.textContent = pedidoSomLiberado ? '🔊 Som ativado' : '🔊 Ativar som';
+            pedidoAudioBtn.classList.add('btn-success');
+            pedidoAudioBtn.classList.remove('btn-warning');
+            pedidoAudioBtn.textContent = '🔊 Som ativado';
         }
 
         async function liberarSomPedidos() {
@@ -283,11 +301,19 @@ $lojaFechada = (bool) ($configRuntime['loja_fechada'] ?? false);
         pedidoAudioBtn.addEventListener('click', liberarSomPedidos);
         syncBotaoSom();
 
-        document.addEventListener('click', () => {
+        function tentarLiberarSomPorInteracao() {
             if (!pedidoSomLiberado) {
                 liberarSomPedidos();
+                avisoSom.style.display = 'none';
+                document.removeEventListener('click', tentarLiberarSomPorInteracao);
+                document.removeEventListener('touchstart', tentarLiberarSomPorInteracao);
             }
-        });
+        }
+        document.addEventListener('click', tentarLiberarSomPorInteracao);
+        document.addEventListener('touchstart', tentarLiberarSomPorInteracao);
+        if (pedidoSomLiberado) {
+            avisoSom.style.display = 'none';
+        }
 
         async function verificarNovosPedidos() {
             try {
