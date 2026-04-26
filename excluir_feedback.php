@@ -10,4 +10,3 @@ if ($id) {
     $stmt->execute([$id]);
 }
 json_response(['ok' => true]);
-

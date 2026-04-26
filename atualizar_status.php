@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/conexao.php';
-require_admin();
+require_module_access('pedidos');
 
 $id = (int) ($_POST['id'] ?? 0);
 $status = trim((string) ($_POST['status'] ?? ''));
@@ -19,4 +19,3 @@ $stmt = $pdo->prepare('UPDATE pedidos SET status = ? WHERE id = ?');
 $stmt->execute([$status, $id]);
 
 json_response(['ok' => true]);
-

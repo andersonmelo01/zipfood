@@ -2,7 +2,7 @@
 <?php
 // Gera impressão simples do pedido para o entregador
 require_once __DIR__ . '/conexao.php';
-require_admin();
+require_module_access('pedidos');
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {

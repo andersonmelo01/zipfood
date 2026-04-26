@@ -1,85 +1,139 @@
-# Manual de Instalação - ZipFood (Ubuntu + Apache2)
+# Manual de Instalacao - ZipFood em VPS Ubuntu
 
-## Requisitos
-- Ubuntu 22.04 LTS ou superior
-- Apache2
-- PHP 8.1 ou superior
-- MySQL/MariaDB
-- Git (opcional)
+## 1. Preparar o servidor
 
-## Passos
-
-### 1. Atualize o sistema
 ```bash
 sudo apt update && sudo apt upgrade -y
+sudo apt install apache2 mysql-server unzip git -y
+sudo apt install php php-mysql php-mbstring php-xml php-curl php-zip php-cli php-common php-opcache -y
 ```
 
-### 2. Instale Apache2, PHP e extensões
+## 2. Habilitar modulos do Apache
+
 ```bash
-sudo apt install apache2 php php-mysql php-xml php-mbstring php-curl php-zip unzip -y
+sudo a2enmod rewrite headers expires
+sudo systemctl restart apache2
 ```
 
-### 3. Instale o MySQL/MariaDB
-```bash
-sudo apt install mysql-server -y
-```
+## 3. Criar banco e usuario no MySQL
 
-### 4. Configure o banco de dados
 ```bash
-sudo mysql -u root
-CREATE DATABASE delivery DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'deliveryuser'@'localhost' IDENTIFIED BY 'SENHA_FORTE';
-GRANT ALL PRIVILEGES ON delivery.* TO 'deliveryuser'@'localhost';
+sudo mysql
+CREATE DATABASE zipfood CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'zipfood'@'localhost' IDENTIFIED BY 'TroqueEssaSenhaForte';
+GRANT ALL PRIVILEGES ON zipfood.* TO 'zipfood'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
 
-### 5. Baixe o sistema
-- Clone o repositório ou envie os arquivos para `/var/www/html/zipfood`:
+## 4. Publicar os arquivos
+
+Exemplo com `git`:
+
 ```bash
-sudo git clone https://github.com/andersonmelo01/PDV_DELIVERY.git /var/www/html/zipfood
+sudo git clone https://github.com/andersonmelo01/PDV_DELIVERY.git /var/www/zipfood
 ```
 
-### 6. Configure permissões
+Ou envie os arquivos do projeto para `/var/www/zipfood`.
+
+## 5. Ajustar permissoes
+
 ```bash
-sudo chown -R www-data:www-data /var/www/html/zipfood
-sudo chmod -R 755 /var/www/html/zipfood
+sudo chown -R www-data:www-data /var/www/zipfood
+sudo find /var/www/zipfood -type d -exec chmod 755 {} \\;
+sudo find /var/www/zipfood -type f -exec chmod 644 {} \\;
+sudo chmod -R 775 /var/www/zipfood/img
 ```
 
-### 7. Configure o Apache
-Crie o arquivo `/etc/apache2/sites-available/zipfood.conf`:
+## 6. Configurar o projeto
+
+Edite `config.php` ou prefira variaveis de ambiente no VirtualHost.
+
+Valores minimos esperados:
+
+- `DB_HOST=localhost`
+- `DB_NAME=zipfood`
+- `DB_USER=zipfood`
+- `DB_PASS=TroqueEssaSenhaForte`
+- `APP_ENV=production`
+- `APP_DEBUG=false`
+
+Se quiser personalizar o admin inicial antes do primeiro acesso:
+
+- `ADMIN_USER`
+- `ADMIN_PASSWORD`
+
+Se nada for definido, o sistema cria automaticamente:
+
+- Usuario: `admin`
+- Senha: `Admin@123`
+
+## 7. Criar o VirtualHost
+
+Arquivo: `/etc/apache2/sites-available/zipfood.conf`
+
 ```apache
 <VirtualHost *:80>
-    ServerName seu_dominio.com
-    DocumentRoot /var/www/html/zipfood
-    <Directory /var/www/html/zipfood>
+    ServerName seu-dominio.com
+    DocumentRoot /var/www/zipfood
+
+    SetEnv APP_ENV production
+    SetEnv APP_DEBUG false
+    SetEnv DB_HOST localhost
+    SetEnv DB_NAME zipfood
+    SetEnv DB_USER zipfood
+    SetEnv DB_PASS TroqueEssaSenhaForte
+
+    <Directory /var/www/zipfood>
         AllowOverride All
         Require all granted
     </Directory>
+
     ErrorLog ${APACHE_LOG_DIR}/zipfood_error.log
     CustomLog ${APACHE_LOG_DIR}/zipfood_access.log combined
 </VirtualHost>
 ```
 
-Ative o site e o mod_rewrite:
+Ative o site:
+
 ```bash
 sudo a2ensite zipfood.conf
-sudo a2enmod rewrite
+sudo a2dissite 000-default.conf
 sudo systemctl reload apache2
 ```
 
-### 8. Configure o .env (opcional)
-- Ajuste as variáveis de ambiente conforme necessário.
+## 8. Estrutura do banco
 
-### 9. Importe o banco de dados
+O sistema cria o banco automaticamente ao conectar, e as tabelas sao garantidas por `app/schema.php`.
+
+Se quiser recriar manualmente:
+
 ```bash
-mysql -u zipfooduser -p zipfood < /var/www/html/zipfood/sql/reset_estrutura.sql
+mysql -u zipfood -p zipfood < /var/www/zipfood/sql/reset_estrutura.sql
 ```
 
-### 10. Acesse o sistema
-- Navegue até `http://seu_dominio.com` ou `http://IP_DO_SERVIDOR/zipfood`
+## 9. Primeiro acesso
 
----
+Abra:
 
-# Suporte
-- Para dúvidas, consulte o README ou abra uma issue no GitHub.
+- `http://IP_DO_SERVIDOR/`
+- ou `http://seu-dominio.com/`
+
+Entre em `admin.php` com:
+
+- Usuario: `admin`
+- Senha: `Admin@123`
+
+Depois:
+
+1. altere a senha na propria tela de login
+2. revise os dados do emitente
+3. configure taxa de entrega e status da loja
+4. cadastre usuarios adicionais
+
+## 10. Recomendacoes finais de producao
+
+- Instale HTTPS com Let's Encrypt
+- Mantenha `APP_DEBUG=false`
+- Faça backup frequente do banco e da pasta `img/`
+- Monitore permissões de escrita em `img/`, `config.json` e `emitente.json`

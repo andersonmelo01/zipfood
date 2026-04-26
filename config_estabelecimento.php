@@ -1,7 +1,7 @@
 <?php
 // Página de configuração do estabelecimento
 require_once __DIR__ . '/conexao.php';
-require_admin();
+require_module_access('configuracoes');
 
 // Caminho do arquivo de configuração
 $configFile = __DIR__ . '/config_estabelecimento.json';
@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'site' => trim($_POST['site'] ?? ''),
         'mensagem_cupom' => trim($_POST['mensagem_cupom'] ?? ''),
     ];
-    file_put_contents($configFile, json_encode($dados, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+    file_put_contents($configFile, json_encode($dados, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
     $msg = 'Configurações salvas com sucesso!';
 }
 

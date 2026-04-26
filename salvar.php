@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/conexao.php';
-require_admin();
+require_module_access('produtos');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['remover'])) {
     $idRemover = (int) $_GET['remover'];

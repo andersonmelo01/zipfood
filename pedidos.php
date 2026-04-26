@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/conexao.php';
-require_admin();
+require_module_access('pedidos');
 
 // Buscar produtos cadastrados
 $stmtProd = $pdo->query("SELECT id, nome, preco FROM produtos ORDER BY nome ASC");

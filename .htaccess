@@ -1,0 +1,14 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^sql/ - [F,L]
+</IfModule>
+
+<FilesMatch "^(config\.php|config\.json|emitente\.json)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(md|sql|log)$">
+    Require all denied
+</FilesMatch>

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/emitente.php';
-require_admin();
+require_module_access('financeiro');
 
 
 $dataInicio = (string) ($_GET['data_inicio'] ?? date('Y-m-d'));

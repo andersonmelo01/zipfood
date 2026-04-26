@@ -1,15 +1,19 @@
 <?php
-include 'emitente.php';
+require_once __DIR__ . '/conexao.php';
+require_module_access('emitente');
+require_once __DIR__ . '/emitente.php';
 
 $mensagem = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $dados = [
+    $atual = ler_emitente();
+    $dados = array_merge($atual, [
         'nome' => $_POST['nome'] ?? '',
         'cnpj' => $_POST['cnpj'] ?? '',
         'endereco' => $_POST['endereco'] ?? '',
         'telefone' => $_POST['telefone'] ?? '',
-        'site' => $_POST['site'] ?? ''
-    ];
+        'site' => $_POST['site'] ?? '',
+        'validade' => $atual['validade'] ?? '',
+    ]);
     salvar_emitente($dados);
     $mensagem = 'Dados do emitente salvos com sucesso!';
 }
@@ -27,8 +31,6 @@ if (!isset($emitente['site'])) $emitente['site'] = '';
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 </head>
-</form>
-    </div>
 <body class="app-bg" style="min-height:100vh;">
     <div class="container app-shell py-4">
         <div class="app-hero p-4 p-lg-5 mb-4">

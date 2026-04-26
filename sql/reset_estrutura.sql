@@ -1,10 +1,30 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS pedido_itens;
+DROP TABLE IF EXISTS feedbacks;
 DROP TABLE IF EXISTS pedidos;
 DROP TABLE IF EXISTS produtos;
+DROP TABLE IF EXISTS usuarios;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    usuario VARCHAR(120) NOT NULL,
+    senha_hash VARCHAR(255) NOT NULL,
+    papel VARCHAR(20) NOT NULL DEFAULT 'vendedor',
+    ativo TINYINT(1) NOT NULL DEFAULT 1,
+    ultimo_login_em DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_usuarios_usuario (usuario),
+    INDEX idx_usuarios_papel (papel),
+    INDEX idx_usuarios_ativo (ativo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO usuarios (nome, usuario, senha_hash, papel, ativo, created_at, updated_at)
+VALUES ('Administrador', 'admin', '$2y$12$exVYr2a1sFFgLft8bSK5seUQEHwpIYHDbcHL.6TdcNTaGsa0YgQQ6', 'admin', 1, NOW(), NOW());
 
 CREATE TABLE produtos (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,3 +81,14 @@ CREATE TABLE pedido_itens (
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE feedbacks (
+    id VARCHAR(40) PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    comentario TEXT NOT NULL,
+    estrelas INT NOT NULL DEFAULT 5,
+    aprovado TINYINT(1) DEFAULT 0,
+    sugestao TINYINT(1) DEFAULT 0,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_feedbacks_aprovado (aprovado),
+    INDEX idx_feedbacks_data (data)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

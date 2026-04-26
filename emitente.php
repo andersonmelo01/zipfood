@@ -1,7 +1,7 @@
 <?php
 // Funções para ler e salvar dados do emitente
 function ler_emitente() {
-    $arquivo = 'emitente.json';
+    $arquivo = __DIR__ . '/emitente.json';
     if (!file_exists($arquivo)) {
         return [
             'nome' => '',
@@ -21,10 +21,10 @@ function ler_emitente() {
 }
 
 function salvar_emitente($dados) {
-    $arquivo = 'emitente.json';
+    $arquivo = __DIR__ . '/emitente.json';
     if (!isset($dados['validade'])) {
         $dados['validade'] = '';
     }
-    file_put_contents($arquivo, json_encode($dados, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    file_put_contents($arquivo, json_encode($dados, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 }
 ?>

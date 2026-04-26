@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/conexao.php';
 
+logout_user();
 $_SESSION = [];
 
 if (ini_get('session.use_cookies')) {
@@ -12,4 +13,3 @@ if (ini_get('session.use_cookies')) {
 session_destroy();
 
 redirect('admin.php');
-

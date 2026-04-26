@@ -1,7 +1,12 @@
 <?php
 
 require_once __DIR__ . '/conexao.php';
-require_admin();
+// Permitir gerente ou admin acessar configurações
+$user = current_user();
+$role = normalize_role((string)($user['papel'] ?? ''));
+if (!in_array($role, ['admin', 'gerente'], true)) {
+    forbidden_response('Somente administradores ou gerentes podem acessar esta área.');
+}
 
 $config = [
     'taxa_entrega' => (float) ($_POST['taxa_entrega'] ?? 5),
@@ -9,7 +14,6 @@ $config = [
     'loja_fechada' => isset($_POST['loja_fechada']),
 ];
 
-file_put_contents(__DIR__ . '/config.json', json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+save_runtime_config($config);
 
 redirect('dashboard.php');
-

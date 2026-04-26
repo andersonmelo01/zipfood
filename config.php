@@ -14,8 +14,8 @@ return [
         'pass' => getenv('DB_PASS') ?: 'gigalele',
     ],
     'auth' => [
-        'admin_user' => getenv('ADMIN_USER') ?: 'andersonmelo01@gmail.com',
-        'admin_password' => getenv('ADMIN_PASSWORD') ?: '123456',
+        'admin_user' => getenv('ADMIN_USER') ?: 'admin',
+        'admin_password' => getenv('ADMIN_PASSWORD') ?: 'Admin@123',
         'admin_password_hash' => getenv('ADMIN_PASSWORD_HASH') ?: '',
     ],
     'integrations' => [

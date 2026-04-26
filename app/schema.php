@@ -1,18 +1,56 @@
 <?php
 
+function ensure_column(PDO $pdo, string $table, string $column, string $definition): void
+{
+    $stmt = $pdo->prepare(
+        'SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?'
+    );
+    $stmt->execute([$table, $column]);
+
+    if ((int) $stmt->fetchColumn() === 0) {
+        $pdo->exec(sprintf('ALTER TABLE `%s` ADD COLUMN %s', $table, $definition));
+    }
+}
+
+function ensure_default_admin_user(PDO $pdo): void
+{
+    $adminsAtivos = (int) $pdo->query("SELECT COUNT(*) FROM usuarios WHERE papel = 'admin' AND ativo = 1")->fetchColumn();
+    if ($adminsAtivos > 0) {
+        return;
+    }
+
+    $auth = config_value('auth', []);
+    $usuario = trim((string) ($auth['admin_user'] ?? ''));
+    $senha = (string) ($auth['admin_password'] ?? 'Admin@123');
+    $senhaHash = trim((string) ($auth['admin_password_hash'] ?? ''));
+
+    if ($usuario === '') {
+        $usuario = 'admin';
+    }
+
+    if ($senhaHash === '') {
+        $senhaHash = password_hash($senha !== '' ? $senha : 'Admin@123', PASSWORD_DEFAULT);
+    }
+
+    $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE usuario = ? LIMIT 1');
+    $stmt->execute([$usuario]);
+    $userId = $stmt->fetchColumn();
+
+    if ($userId) {
+        $update = $pdo->prepare("UPDATE usuarios SET nome = ?, senha_hash = ?, papel = 'admin', ativo = 1 WHERE id = ?");
+        $update->execute(['Administrador', $senhaHash, $userId]);
+        return;
+    }
+
+    $insert = $pdo->prepare("
+        INSERT INTO usuarios (nome, usuario, senha_hash, papel, ativo, created_at, updated_at)
+        VALUES (?, ?, ?, 'admin', 1, NOW(), NOW())
+    ");
+    $insert->execute(['Administrador', $usuario, $senhaHash]);
+}
+
 function ensure_schema(PDO $pdo): void
 {
-    
-    $pdo->exec("
-        CREATE DATABASE IF NOT EXISTS zipfood
-        CHARACTER SET utf8mb4
-        COLLATE utf8mb4_unicode_ci;
-    ");
-
-    // 🔥 Seleciona o banco
-    $pdo->exec("USE zipfood");
-
-    // ================= PRODUTOS =================
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS produtos (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,28 +78,9 @@ function ensure_schema(PDO $pdo): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 
-    // 🔥 Garante colunas adicionais
-    $columns = [
-        'preco_promocional' => "ALTER TABLE produtos ADD COLUMN preco_promocional DECIMAL(10,2) DEFAULT 0 AFTER preco",
-        'promo_ativa' => "ALTER TABLE produtos ADD COLUMN promo_ativa TINYINT(1) DEFAULT 0 AFTER disponivel",
-    ];
+    ensure_column($pdo, 'produtos', 'preco_promocional', 'preco_promocional DECIMAL(10,2) DEFAULT 0 AFTER preco');
+    ensure_column($pdo, 'produtos', 'promo_ativa', 'promo_ativa TINYINT(1) DEFAULT 0 AFTER disponivel');
 
-    foreach ($columns as $column => $alterSql) {
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*)
-            FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE()
-              AND TABLE_NAME = 'produtos'
-              AND COLUMN_NAME = ?
-        ");
-        $stmt->execute([$column]);
-
-        if ((int) $stmt->fetchColumn() === 0) {
-            $pdo->exec($alterSql);
-        }
-    }
-
-    // ================= PEDIDOS =================
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS pedidos (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,7 +100,6 @@ function ensure_schema(PDO $pdo): void
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 
-    // ================= ITENS DO PEDIDO =================
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS pedido_itens (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -94,7 +112,7 @@ function ensure_schema(PDO $pdo): void
             FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
-    // ================= FEEDBACKS =================
+
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS feedbacks (
             id VARCHAR(40) PRIMARY KEY,
@@ -108,4 +126,27 @@ function ensure_schema(PDO $pdo): void
             INDEX idx_feedbacks_data (data)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(120) NOT NULL,
+            usuario VARCHAR(120) NOT NULL,
+            senha_hash VARCHAR(255) NOT NULL,
+            papel VARCHAR(20) NOT NULL DEFAULT 'vendedor',
+            ativo TINYINT(1) NOT NULL DEFAULT 1,
+            ultimo_login_em DATETIME NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY uniq_usuarios_usuario (usuario),
+            INDEX idx_usuarios_papel (papel),
+            INDEX idx_usuarios_ativo (ativo)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+
+    ensure_column($pdo, 'usuarios', 'papel', "papel VARCHAR(20) NOT NULL DEFAULT 'vendedor' AFTER senha_hash");
+    ensure_column($pdo, 'usuarios', 'ativo', "ativo TINYINT(1) NOT NULL DEFAULT 1 AFTER papel");
+    ensure_column($pdo, 'usuarios', 'ultimo_login_em', 'ultimo_login_em DATETIME NULL AFTER ativo');
+
+    ensure_default_admin_user($pdo);
 }

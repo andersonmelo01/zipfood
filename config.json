@@ -1,5 +1,5 @@
 {
-    "taxa_entrega": 5,
-    "taxa_ativa": true,
-    "loja_fechada": false
+    "taxa_entrega": 0,
+    "taxa_ativa": false,
+    "loja_fechada": true
 }

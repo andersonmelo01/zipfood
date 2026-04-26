@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/conexao.php';
-require_admin();
+require_module_access('pedidos');
 
 $id = (int) ($_POST['id'] ?? 0);
 
@@ -26,4 +26,3 @@ try {
     http_response_code(500);
     echo 'Erro: ' . $e->getMessage();
 }
-
